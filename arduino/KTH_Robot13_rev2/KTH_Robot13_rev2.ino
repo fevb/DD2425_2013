@@ -62,8 +62,8 @@
 #define N 10 // Averaging of measured speed with the N last values
 
 /* Battery monitoring const */
-#define seuil_cell 3.4
-#define seuil_batt 11.1
+#define seuil_cell 3.6
+#define seuil_batt 10.8
 
 int led_pin[6] = {38,40,42,44,46,48};
 
@@ -340,13 +340,13 @@ void setup()  {
 ******************************/
 void loop()  {
   static unsigned long t;
+  static boolean low_batt = false ;
   nh.spinOnce();
   /* Watchdog timer */
   if(millis()-wdtime > 2000)  { 
     MotorA.Set_speed(0);
     MotorB.Set_speed(0);
     sensor.publish(&Amsg);
-    x=0;y=0;theta=0;
     wdtime = millis() ;
   }
   
@@ -359,17 +359,26 @@ void loop()  {
     Amsg.cell2 = v2 - v1; 
     Amsg.cell3 = v3 - v2;
     Amsg.on_batt = digitalRead(10);
-  
-    if((v1<seuil_cell || v2<seuil_cell || v3<seuil_cell) && (v1>2 && v2>2 && v3>2))  {
-      tone(7,440,500);   
-    }
     
-    for(int m=0;m<floor((v3-seuil_batt)*6);m++)  {
+    for(int m=0;m<floor((v3-seuil_batt)*4);m++)  {
       digitalWrite(led_pin[m],HIGH);
     }
-    for(int m=floor((v3-seuil_batt)*6);m<6;m++)  {
+    for(int m=floor((v3-seuil_batt)*4);m<6;m++)  {
       digitalWrite(led_pin[m],LOW);
     }
+    
+    if((Amsg.cell1<seuil_cell || Amsg.cell2<seuil_cell || Amsg.cell3<seuil_cell) && v1>2)  {
+      low_batt = true ;
+    }
+    
+    if(low_batt && ((Amsg.cell1>seuil_cell+0.2 || Amsg.cell2>seuil_cell+0.2 || Amsg.cell3>seuil_cell+0.2) || v1<2))  {
+      low_batt = false;
+    }
+    
+    if(low_batt)  {
+      tone(7,440,500); 
+    }
+    
     t = millis();
   }
     
