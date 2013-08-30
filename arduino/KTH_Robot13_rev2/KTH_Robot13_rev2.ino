@@ -104,7 +104,7 @@ unsigned long wdtime ;
 int cpt = 0;
 
 /* Specific parameters for NL control */ 
-#define NLCRTRL // comment to use a classic Proportionnal-Integer *speed* corrector
+//#define NLCTRL // comment to use a classic Proportional-Integral *speed* control
 #ifdef NLCTRL
 float x_ghost=0;
 float y_ghost=0;
@@ -289,8 +289,8 @@ void setup()  {
          MotorB.Set_speed(0);
          
          /* Set the good parameters */
-         MotorA.Set_control_parameters(5, 150, 3, 1000);
-         MotorB.Set_control_parameters(5, 150, 3, 1000);
+         MotorA.Set_control_parameters(5, 0, 3, 1000);
+         MotorB.Set_control_parameters(5, 0, 3, 1000);
          
          /* Define interruptions, on changing edge */
          attachInterrupt(3,interrupt1,CHANGE);  // A
