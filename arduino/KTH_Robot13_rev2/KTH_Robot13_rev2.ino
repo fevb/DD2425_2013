@@ -346,6 +346,15 @@ void loop()  {
   if(millis()-wdtime > 2000)  { 
     MotorA.Set_speed(0);
     MotorB.Set_speed(0);
+    /* Read IR sensors value */
+    Amsg.ch1 = analogRead(A8);
+    Amsg.ch2 = analogRead(A9);
+    Amsg.ch3 = analogRead(A10);
+    Amsg.ch4 = analogRead(A11);
+    Amsg.ch5 = analogRead(A12);
+    Amsg.ch6 = analogRead(A13);
+    Amsg.ch7 = analogRead(A14);
+    Amsg.ch8 = analogRead(A15);
     sensor.publish(&Amsg);
     wdtime = millis() ;
   }
