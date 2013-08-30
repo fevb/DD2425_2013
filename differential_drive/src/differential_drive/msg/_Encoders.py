@@ -14,7 +14,6 @@ class Encoders(genpy.Message):
 int32 delta_encoder1
 int32 delta_encoder2
 
-
 int32 timestamp
 
 

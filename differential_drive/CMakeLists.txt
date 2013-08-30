@@ -44,7 +44,7 @@ rosbuild_add_executable(mode1 src/mode1.cpp)
 rosbuild_add_executable(mode2 src/mode2.cpp)
 
 rosbuild_add_executable(KeyboardControl src/KeyboardControl.cpp)
-rosbuild_add_executable(HumanInterface src/HumanInterface2.cpp)
+# rosbuild_add_executable(HumanInterface src/HumanInterface2.cpp)
 
 rosbuild_add_executable(goto src/goto.cpp)
 

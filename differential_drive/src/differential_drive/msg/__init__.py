@@ -2,15 +2,8 @@ from ._Odometry import *
 from ._Encoders import *
 from ._KeyEvent import *
 from ._MouseEvent import *
-from ._Pose import *
 from ._AnalogC import *
-from ._Param import *
-from ._Carrot import *
 from ._Params import *
-from ._ADC import *
 from ._Servomotors import *
-from ._Path import *
-from ._test import *
 from ._Sharp import *
 from ._Speed import *
-from ._Size import *
