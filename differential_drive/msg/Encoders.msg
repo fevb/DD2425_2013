@@ -1,5 +1,6 @@
 # Change of encoders during timestamp millisseconds
-
+# 1 --> left
+# 2 --> right
 int32 delta_encoder1
 int32 delta_encoder2
 

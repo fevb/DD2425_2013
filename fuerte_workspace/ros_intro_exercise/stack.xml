@@ -1,0 +1,11 @@
+<stack>
+  <description brief="Introductory exercise session on ROS for DD2425 course"> 
+    Contains packages of a simulated motor
+  </description>
+  <author>Maintained by Johan E.</author>
+  <license>BSD, GPL</license>  
+  <review status="experimental" notes=""/>
+  <url>http://ros.org/wiki/ros_</url>
+  <version>0.1.0</version>
+
+</stack>
