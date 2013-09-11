@@ -11,14 +11,18 @@ ros::Publisher	pwm_pub;
 //Callback function for the "/encoder" topic. Prints the enconder value and randomly changes the motorspeed.
 void receive_encoder(const Encoders::ConstPtr &msg)
 {
-	int right = msg->delta_encoder2;
-	int left = msg->delta_encoder1;
-	int timestamp = msg->timestamp;
-	printf("%d:got encoder L:%d , false R:%d\n",timestamp,left,right);
-	PWM pwm;
-	pwm.PWM1	= int(255*(0.5f-float(rand()%1000)/1000.0f)*2.0f);//random motorspeed[-255,255]
-	pwm.PWM2	= int(255*(0.5f-float(rand()%1000)/1000.0f)*2.0f);//random motorspeed[-255,255]
-	pwm_pub.publish(pwm);
+  static ros::Time t_start = ros::Time::now();
+  int right = msg->delta_encoder2;
+  int left = msg->delta_encoder1;
+  int timestamp = msg->timestamp;
+  printf("%d:got encoder L:%d , false R:%d\n",timestamp,left,right);
+  PWM pwm;
+  // pwm.PWM1	= int(255*(0.5f-float(rand()%1000)/1000.0f)*2.0f);//random motorspeed[-255,255]
+  // pwm.PWM2	= int(255*(0.5f-float(rand()%1000)/1000.0f)*2.0f);//random motorspeed[-255,255]
+  pwm.PWM1 = int(255*sin(2*M_PI*1*(ros::Time::now()-t_start).toSec()));
+  pwm.PWM2 = int(255*sin(2*M_PI*1*(ros::Time::now()-t_start).toSec()));
+  pwm.header.stamp = ros::Time::now();
+  pwm_pub.publish(pwm);
 }
 
 int main(int argc, char **argv)

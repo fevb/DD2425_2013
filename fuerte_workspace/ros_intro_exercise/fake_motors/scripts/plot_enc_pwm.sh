@@ -1,0 +1,1 @@
+rxplot /motors/encoders/delta_encoder1 /motors/encoders/delta_encoder2 /motors/pwm/PWM1 /motors/pwm/PWM2 -r 10

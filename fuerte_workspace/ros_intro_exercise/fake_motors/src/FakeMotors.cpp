@@ -48,18 +48,18 @@ void change_motor_speed(const PWM::ConstPtr &msg)
 }
 
 //Updates the encoder values by moving the fake motors.
-// time in usec
+// time in sec
 void updateEncoders(float time)
 {
 	float right_random = right_noise*(0.5f-float(rand()%1000)/1000.0f)*2.0f;
 	float left_random  = left_noise *(0.5f-float(rand()%1000)/1000.0f)*2.0f;
 	
-	float right_speed = (right_pwm+right_random);
+	float right_speed = (right_pwm/255.0+right_random);
 	if		(right_speed > start_pwm_right)		{right_speed-=start_pwm_right;}
 	else if	(right_speed <-start_pwm_right)		{right_speed+=start_pwm_right;}
 	else							{right_speed = 0;}
 	
-	float left_speed  = (left_pwm+left_random);
+	float left_speed  = (left_pwm/255.0+left_random);
 
 	if		(left_speed > start_pwm_left)		{left_speed-=start_pwm_left;}
 	else if	(left_speed <-start_pwm_left)		{left_speed+=start_pwm_left;}
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 
 		ros::spinOnce();
 		loop_rate.sleep();
-		updateEncoders(10000);
+		updateEncoders(0.01);
 	}
 	return 0;
 }
