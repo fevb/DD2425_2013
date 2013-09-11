@@ -48,6 +48,7 @@ void change_motor_speed(const PWM::ConstPtr &msg)
 }
 
 //Updates the encoder values by moving the fake motors.
+// time in usec
 void updateEncoders(float time)
 {
 	float right_random = right_noise*(0.5f-float(rand()%1000)/1000.0f)*2.0f;
@@ -77,32 +78,30 @@ int main(int argc, char **argv)
 	ros::Publisher  enc_pub = n.advertise<Encoders>("/motors/encoders"	, 100000);
 	ros::spinOnce();
 	ros::Rate loop_rate(100);
-	struct timeval start, end;
 	int counter = 0;
 	int right_enc_old = 0;
 	int left_enc_old = 0;
+	ros::Time t_start = ros::Time::now();
+
 	while(ros::ok()){
-		gettimeofday(&start, NULL);
 		Encoders msg;
 		msg.delta_encoder1 	= int(right_enc) - right_enc_old;
 		msg.delta_encoder2 	= int(left_enc) - left_enc_old;
+
 		right_enc_old = right_enc;
 		left_enc_old = left_enc;
-		msg.timestamp = int(start.tv_sec*1000.0 +double(start.tv_usec)/1000.0);
-		printf("Timestamp:%f\n", msg.timestamp);
-		printf("right:%i\n", int(msg.right));
-		printf("left:%i\n", int(msg.left));
+
+		msg.timestamp = int((ros::Time::now()-t_start).toSec()*1000.0);
+		// 		std::cout << "ROS time: " << ros::Time::now() << std::endl;
+		printf("Timestamp:%d\n", msg.timestamp);
+		printf("right:%d\n", int(msg.delta_encoder1));
+		printf("left:%d\n", int(msg.delta_encoder2));
+
 		enc_pub.publish(msg);
-		ros::spinOnce();
-		gettimeofday(&end, NULL);
-		while((end.tv_sec*1000000+end.tv_usec-(start.tv_sec*1000000+start.tv_usec)) < encoder_interval*1000){
-			loop_rate.sleep();
-			gettimeofday(&end, NULL);
-		}
 
 		ros::spinOnce();
-		gettimeofday(&end, NULL);
-		updateEncoders(float(end.tv_sec*1000000+end.tv_usec-(start.tv_sec*1000000+start.tv_usec))/1000000.0f);
+		loop_rate.sleep();
+		updateEncoders(10000);
 	}
 	return 0;
 }
