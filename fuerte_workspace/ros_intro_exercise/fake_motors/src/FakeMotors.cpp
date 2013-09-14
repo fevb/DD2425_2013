@@ -33,7 +33,7 @@ const float left_noise = 0.005f;
 
 const float ticks_rev = 500;//500 ticks per revelation on the wheels
 
-//Callback function for the "/motor_speed" topic. Changes and truncates the motorspeeds to the intervall of [-1,1].
+//Callback function for the "/motor_speed" topic. Changes and truncates the motorspeeds to the intervall of [-255,255].
 void change_motor_speed(const PWM::ConstPtr &msg)
 {
 	if(msg->PWM1 > 255)		{left_pwm = 255;}
