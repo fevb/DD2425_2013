@@ -11,4 +11,5 @@
   <depend stack="ros_comm"/>
   <depend stack="geometry" />
   <depend stack="nodelet_core" />
+  <depend stack="imu_tools" />
 </stack>
