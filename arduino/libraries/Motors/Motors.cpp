@@ -38,7 +38,10 @@ Motors::~Motors(void) {}
  * Motors::Set_speed(int u)
  * Set the duty cycle of the PWM
  * parameter >
- * 		@ int u : duty cycle value, between 0 (no motion) and 255 (maximal speed)
+ * 		@ int u : duty cycle value, between -255 and 255. 
+ *                        -255: (reverse maximal speed) 
+ *                        0: (no motion)
+ *                        255: (maximal speed)
  * 		
  * 	Assuming that Vcc is you power supply voltage, voltage V applied to the motor is 
  * 	V = Vcc*u/255
