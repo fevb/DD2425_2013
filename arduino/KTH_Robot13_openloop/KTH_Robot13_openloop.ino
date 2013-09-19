@@ -76,6 +76,7 @@ int encoder1_loc,encoder2_loc ;
 int encoder2, encoder2_old ;
 
 unsigned long time,time_old;
+unsigned long t_enc, t_enc_old;
 unsigned long wdtime ;
 
 int cpt = 0;
@@ -90,7 +91,7 @@ ros::Publisher p("/motion/Encoders", &imlost);  // Create a publisher to "/motio
 ros::Publisher sensor("/sensors/ADC", &Amsg);  // Create a publisher to "/sensors/ADC" topic
 
 /* Subscriber Callback */
-void messageSpeed( const differential_drive::Speed& cmd_msg){
+void messagePWM( const differential_drive::PWM &cmd_msg){
   /* store the time for Watchdog */
   wdtime = millis() ;  
   
@@ -109,25 +110,12 @@ void messageSpeed( const differential_drive::Speed& cmd_msg){
   p.publish(&imlost);
   
   /* get the speed from message and apply it */
-  MotorA.Set_speed(cmd_msg.W1*30);
-  MotorB.Set_speed(cmd_msg.W2*30);
+  MotorA.Set_speed(cmd_msg.PWM1);
+  MotorB.Set_speed(cmd_msg.PWM2);
   
   if(cpt<10)  {cpt++;}
   else  {
     cpt = 0;   
-    
-    /* Read IR sensors value */
-    Amsg.ch1 = analogRead(A8);
-    Amsg.ch2 = analogRead(A9);
-    Amsg.ch3 = analogRead(A10);
-    Amsg.ch4 = analogRead(A11);
-    Amsg.ch5 = analogRead(A12);
-    Amsg.ch6 = analogRead(A13);
-    Amsg.ch7 = analogRead(A14);
-    Amsg.ch8 = analogRead(A15);  
-    
-    /* Publish sensor value */
-    sensor.publish(&Amsg);
   }
   
   /* Store encoders value */
@@ -142,7 +130,7 @@ void messageServo(const differential_drive::Servomotors& params)  {
 }
 
 /* Create Subscriber to "/motion/Speed" topic. Callback function is messageSpeed */
-ros::Subscriber<differential_drive::Speed> subSpeed("/motion/Speed", &messageSpeed);
+ros::Subscriber<differential_drive::PWM> subPWM("/motion/PWM", &messagePWM);
 
 /* Create Subscriber to "/actuator/Servo" topic. Callback function is messageServo */
 ros::Subscriber<differential_drive::Servomotors> subServo("/actuator/Servo", &messageServo);
@@ -200,7 +188,7 @@ void setup()  {
          
          nh.advertise(sensor);  // advertise on sensor
          
-         nh.subscribe(subSpeed);  // Subscribe 
+         nh.subscribe(subPWM);  // Subscribe 
          nh.subscribe(subServo);  // Subscribe 
          
          /* Advertise booting */
@@ -217,13 +205,19 @@ void setup()  {
 ******************************/
 void loop()  {
   static unsigned long t;
+  static unsigned long t_ADC;
   static boolean low_batt = false ;
   nh.spinOnce();
   /* Watchdog timer */
   if(millis()-wdtime > 2000)  { 
     MotorA.Set_speed(0);
     MotorB.Set_speed(0);
-    /* Read IR sensors value */
+    wdtime = millis() ;
+  }
+
+  /* Read IR sensors value every 100ms */
+  if(millis()-t_ADC>100)
+  { 
     Amsg.ch1 = analogRead(A8);
     Amsg.ch2 = analogRead(A9);
     Amsg.ch3 = analogRead(A10);
@@ -231,9 +225,11 @@ void loop()  {
     Amsg.ch5 = analogRead(A12);
     Amsg.ch6 = analogRead(A13);
     Amsg.ch7 = analogRead(A14);
-    Amsg.ch8 = analogRead(A15);
-    sensor.publish(&Amsg);  
-    wdtime = millis() ;
+    Amsg.ch8 = analogRead(A15);  
+    
+    /* Publish sensor value */
+    sensor.publish(&Amsg);
+    t_ADC = millis();
   }
   
     if(millis()-t > 1000)  {

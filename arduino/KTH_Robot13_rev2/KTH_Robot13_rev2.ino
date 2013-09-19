@@ -100,6 +100,7 @@ int encoder1_loc,encoder2_loc ;
 int encoder2, encoder2_old ;
 
 unsigned long time,time_old;
+unsigned long t_enc, t_enc_old;
 unsigned long wdtime ;
 
 int cpt = 0;
@@ -120,10 +121,12 @@ int k1=10;k2=150;k3=80;
 /* ROS Use */
 ros::NodeHandle  nh;
 
-differential_drive::Odometry imlost ;
+differential_drive::Encoders imlost ;
+differential_drive::Odometry odom ;
 differential_drive::AnalogC Amsg ;
 
-ros::Publisher p("/motion/Odometry", &imlost);  // Create a publisher to "/motion/Odometry" topic
+ros::Publisher pubEnc("/motion/Encoders", &imlost);  // Create a publisher to "/motion/Encoders" topic
+ros::Publisher pubOdom("/motion/Odometry", &odom);  // Create a publisher to "/motion/Odometry" topic
 ros::Publisher sensor("/sensors/ADC", &Amsg);  // Create a publisher to "/sensors/ADC" topic
 
 /* Subscriber Callback */
@@ -149,6 +152,16 @@ void messageSpeed( const differential_drive::Speed& cmd_msg){
   /* Control loop */
   encoder1_loc = encoder1 ;
   encoder2_loc = encoder2 ;
+
+  imlost.delta_encoder1 = encoder1_loc-encoder1_old ;
+  imlost.delta_encoder2 = encoder2_loc-encoder2_old ;
+  
+  /* get the time since last call */
+  t_enc_old = t_enc ;  
+  t_enc = millis() ;
+
+  imlost.timestamp = t_enc - t_enc_old ;
+  pubEnc.publish(&imlost);
   
   MotorA.Read_speed(encoder1_loc,encoder1_old,Te);
   MotorB.Read_speed(encoder2_loc,encoder2_old,Te);
@@ -218,23 +231,12 @@ void messageSpeed( const differential_drive::Speed& cmd_msg){
     cpt = 0;
     
     /* Publish Odometry */
-    imlost.x = x ;
-    imlost.y = y;
-    imlost.theta = theta ;       
-    
-    /* Read IR sensors value */
-    Amsg.ch1 = analogRead(A8);
-    Amsg.ch2 = analogRead(A9);
-    Amsg.ch3 = analogRead(A10);
-    Amsg.ch4 = analogRead(A11);
-    Amsg.ch5 = analogRead(A12);
-    Amsg.ch6 = analogRead(A13);
-    Amsg.ch7 = analogRead(A14);
-    Amsg.ch8 = analogRead(A15);  
+    odom.x = x ;
+    odom.y = y;
+    odom.theta = theta ;       
     
     /* Publish Odometry and sensors value */
-    p.publish(&imlost);
-    sensor.publish(&Amsg);
+    pubOdom.publish(&odom);
   }
   
   /* Store encoders value */
@@ -315,8 +317,8 @@ void setup()  {
          /* Initialize ROS stuff */
          nh.initNode();  // initialize node
          
-         nh.advertise(p);  // advertise on p
-         
+         nh.advertise(pubEnc);  // advertise on pubEnc
+         nh.advertise(pubOdom);  // advertise on pubOdom         
          nh.advertise(sensor);  // advertise on sensor
          
          nh.subscribe(subSpeed);  // Subscribe 
@@ -341,13 +343,20 @@ void setup()  {
 ******************************/
 void loop()  {
   static unsigned long t;
+  static unsigned long t_ADC;
   static boolean low_batt = false ;
   nh.spinOnce();
   /* Watchdog timer */
   if(millis()-wdtime > 2000)  { 
     MotorA.Set_speed(0);
     MotorB.Set_speed(0);
-    /* Read IR sensors value */
+    wdtime = millis();
+  }
+  
+
+  /* Read IR sensors value every 100ms */
+  if(millis()-t_ADC>100)
+  { 
     Amsg.ch1 = analogRead(A8);
     Amsg.ch2 = analogRead(A9);
     Amsg.ch3 = analogRead(A10);
@@ -355,11 +364,13 @@ void loop()  {
     Amsg.ch5 = analogRead(A12);
     Amsg.ch6 = analogRead(A13);
     Amsg.ch7 = analogRead(A14);
-    Amsg.ch8 = analogRead(A15);
+    Amsg.ch8 = analogRead(A15);  
+    
+    /* Publish sensor value */
     sensor.publish(&Amsg);
-    wdtime = millis() ;
+    t_ADC = millis();
   }
-  
+
     if(millis()-t > 1000)  {
     float v1 = analogRead(A7)*0.0049*1.5106;
     float v2 = analogRead(A6)*0.0049*2.9583;
