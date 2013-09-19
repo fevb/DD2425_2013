@@ -28,6 +28,7 @@
 #include <ros.h>
 #include <differential_drive/Speed.h>
 #include <differential_drive/Odometry.h>
+#include <differential_drive/Encoders.h>
 #include <differential_drive/AnalogC.h>
 #include <differential_drive/Params.h>
 #include <differential_drive/Servomotors.h>

@@ -25,7 +25,7 @@
 
 
 #include <ros.h>
-#include <differential_drive/Speed.h>
+#include <differential_drive/PWM.h>
 #include <differential_drive/Encoders.h>
 #include <differential_drive/AnalogC.h>
 #include <differential_drive/Servomotors.h>
@@ -109,8 +109,8 @@ void messageSpeed( const differential_drive::Speed& cmd_msg){
   p.publish(&imlost);
   
   /* get the speed from message and apply it */
-  MotorA.Set_speed(cmd_msg.W1);
-  MotorB.Set_speed(cmd_msg.W2);
+  MotorA.Set_speed(cmd_msg.W1*30);
+  MotorB.Set_speed(cmd_msg.W2*30);
   
   if(cpt<10)  {cpt++;}
   else  {
