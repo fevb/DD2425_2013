@@ -85,8 +85,8 @@ int main(int argc, char **argv)
 
 	while(ros::ok()){
 		Encoders msg;
-		msg.delta_encoder1 	= int(right_enc) - right_enc_old;
-		msg.delta_encoder2 	= int(left_enc) - left_enc_old;
+		msg.delta_encoder2 	= int(right_enc) - right_enc_old;
+		msg.delta_encoder1 	= int(left_enc) - left_enc_old;
 
 		right_enc_old = right_enc;
 		left_enc_old = left_enc;
@@ -94,8 +94,8 @@ int main(int argc, char **argv)
 		msg.timestamp = int((ros::Time::now()-t_start).toSec()*1000.0);
 		// 		std::cout << "ROS time: " << ros::Time::now() << std::endl;
 		printf("Timestamp:%d\n", msg.timestamp);
-		printf("right:%d\n", int(msg.delta_encoder1));
-		printf("left:%d\n", int(msg.delta_encoder2));
+		printf("left:%d\n", int(msg.delta_encoder1));
+		printf("right:%d\n", int(msg.delta_encoder2));
 
 		enc_pub.publish(msg);
 
