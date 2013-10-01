@@ -153,6 +153,8 @@ void messageSpeed( const differential_drive::Speed& cmd_msg){
   encoder1_loc = encoder1 ;
   encoder2_loc = encoder2 ;
 
+  imlost.encoder1 = encoder1;
+  imlost.encoder2 = encoder2;
   imlost.delta_encoder1 = encoder1_loc-encoder1_old ;
   imlost.delta_encoder2 = encoder2_loc-encoder2_old ;
   
